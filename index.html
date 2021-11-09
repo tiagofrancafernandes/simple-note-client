@@ -19,8 +19,12 @@
 
     <!-- UIkit CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.8.1/dist/css/uikit.min.css" />
+    <link rel="stylesheet" href="assets/notify-master/assets/notify.min.css" />
+
 
     <script src="//unpkg.com/alpinejs" defer></script>
+
+    <link rel="stylesheet" href="assets/css/all.css" />
 
 </head>
 
@@ -58,49 +62,89 @@
                     <fieldset class="uk-fieldset">
 
                         <legend class="uk-legend">
-                            <i class="cursor-pointer uk-icon" uk-icon="icon: lock" uk-tooltip="Private note"></i>
-                            <i class="cursor-pointer uk-icon uk-text-warning uk-badge uk-padding-small uk-padding-remove-horizontal uk-padding-remove-vertical"
-                                uk-icon="icon: bolt" uk-tooltip="New note"></i>
-                            <span class="uk-margin-small-left">
-                                <span x-data x-text="note_data.title"></span>
-                                <i class="cursor-pointer uk-icon" uk-icon="icon: pencil" uk-tooltip="Edit title"></i>
-                            </span>
+                            <div>
+                                <i class="cursor-pointer uk-icon" uk-icon="icon: lock" uk-tooltip="Private note"></i>
+                                <template x-if="is_new">
+                                    <i class="cursor-pointer uk-icon uk-text-warning uk-badge uk-padding-small uk-padding-remove-horizontal uk-padding-remove-vertical"
+                                        uk-icon="icon: bolt" uk-tooltip="New note"></i>
+                                </template>
+                            </div>
                         </legend>
 
-                        <div class="uk-text-center uk-margin-small-bottom uk-grid" uk-grid="">
-                            <div class="uk-width-5-6 uk-first-column">
-                                <input class="uk-input uk-width-1-1" type="text" name="title" title="Note title"
-                                    spellcheck="false" placeholder="Note title" value="{{ $note->title }}"
-                                    @keyup.shift.enter="alert('aa')" @keyup.shift.escape="cancelEditNote"
-                                    x-data x-model="note_data.title">
-                                <i x-data x-text="errors.title" class="text-red-600 text-xs font-semibold"></i>
+                        <!-- Title section -->
+                        <template x-if="!edit_title">
+                            <div class="uk-text-center uk-margin-small-bottom uk-grid" uk-grid="">
+                                <span class="uk-margin-small-left">
+                                    <span x-data @click.prevent="edit_title=true" x-text="note_data.title"></span>
+                                    <a @click.prevent="editTitle" class="cursor-pointer uk-icon uk-icon-link"
+                                        uk-icon="icon: pencil" uk-tooltip="Edit title" href="#!">
+                                    </a>
+                                </span>
                             </div>
-                            <div class="uk-width-1-6 uk-padding-remove-left">
-                                <div class="uk-flex uk-flex-between">
-                                    <button class="mod-mobile uk-button uk-button-primary uk-width-1-1"
-                                        title="Update title" uk-tooltip="Update title" @click="alert('aa')">
-                                        <i uk-icon="icon: check; ratio: 1.5"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        </template>
 
-                        <div class="uk-text-center uk-margin-small-bottom uk-grid uk-margin-remove-top" uk-grid="">
-                            <div class="uk-width-5-6 uk-first-column">
-                                <input class="uk-input uk-width-1-1" type="text" placeholder="Note slug"
-                                    title="Note slug" x-data x-model="note_data.slug">
-                            </div>
-                            <div class="uk-width-1-6 uk-padding-remove-left">
-                                <div class="uk-flex uk-flex-between">
-                                    <button class="mod-mobile uk-button uk-button-primary uk-width-1-1"
-                                        title="Update slug" uk-tooltip="Update slug">
-                                        <i uk-icon="icon: check; ratio: 1.5"></i>
-                                    </button>
+                        <template x-if="edit_title">
+                            <div class="uk-text-center uk-grid" uk-grid="">
+                                <div class="uk-width-5-6 uk-first-column">
+                                    <input class="uk-input uk-width-1-1 uk-form-width-medium uk-form-small"
+                                        type="text" name="title" title="Note title"
+                                        spellcheck="false" placeholder="Note title"
+                                        x-data x-model="note_data.title"
+                                        @keyup.escape="cancelEditTitle"
+                                        @keyup.enter="updateTitle">
                                 </div>
-                            </div>
-                        </div>
+                                <div class="uk-width-1-6 uk-padding-remove-left">
+                                    <div class="uk-flex uk-flex-between">
+                                        <button class="mod-mobile uk-button uk-button-primary uk-width-1-1 uk-button-small"
+                                            title="Update title" uk-tooltip="Update title" @click="updateTitle">
+                                            <i uk-icon="icon: check; ratio: 1.5"></i>
+                                        </button>
+                                    </div>
+                                </div>
 
-                        <div class="uk-margin">
+                            </div>
+                        </template>
+
+                        <!-- END Title section -->
+
+                        <!-- slug section -->
+                        <template x-if="!edit_slug">
+                            <div class="uk-text-center uk-margin-small-bottom uk-grid" uk-grid="">
+                                <span class="uk-margin-small-left">
+                                    <span x-data @click.prevent="edit_slug=true" x-text="note_data.slug"></span>
+                                    <a @click.prevent="editSlug" class="cursor-pointer uk-icon uk-icon-link"
+                                        uk-icon="icon: pencil" uk-tooltip="Edit slug" href="#!">
+                                    </a>
+                                </span>
+                            </div>
+                        </template>
+
+                        <template x-if="edit_slug">
+                            <div class="uk-text-center uk-grid" uk-grid="">
+                                <div class="uk-width-5-6 uk-first-column">
+                                    <input class="uk-input uk-width-1-1 uk-form-width-medium uk-form-small"
+                                        type="text" name="slug" title="Note slug"
+                                        spellcheck="false" placeholder="Note slug"
+                                        x-data x-model="note_data.slug"
+                                        @keyup.escape="cancelEditSlug"
+                                        @keyup.enter="updateSlug">
+                                </div>
+                                <div class="uk-width-1-6 uk-padding-remove-left">
+                                    <div class="uk-flex uk-flex-between">
+                                        <button class="mod-mobile uk-button uk-button-primary uk-width-1-1 uk-button-small"
+                                            title="Update slug" uk-tooltip="Update slug" @click="updateSlug">
+                                            <i uk-icon="icon: check; ratio: 1.5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </template>
+
+                        <!-- END slug section -->
+
+                        <div class="uk-margin full-width-target" :class="full_width ? 'full-width' : ''">
+
                             <style>
                                 pre.ace_editor {
                                     min-height: 25rem !important;
@@ -123,12 +167,19 @@
                                 </button>
 
                                 <button class="uk-margin-left mod-mobile uk-button uk-button-small uk-text-danger"
-                                    type="button" onclick="editorUndo()" uk-tooltip="Undo [TODO]"> [//TODO]
+                                    type="button" onclick="editorUndo()" uk-tooltip="Undo">
                                     <i class="uk-icon" uk-icon="icon: history"></i>
                                 </button>
                                 <button class="mod-mobile uk-button uk-button-small uk-text-danger" type="button"
-                                    onclick="editorRedo()" uk-tooltip="Redo [TODO]"> [//TODO]
+                                    onclick="editorRedo()" uk-tooltip="Redo">
                                     <i class="uk-icon" uk-icon="icon: future"></i>
+                                </button>
+
+                                <button class="uk-margin-left mod-mobile uk-button uk-button-small uk-text-danger"
+                                    type="button" @click="full_width = !full_width" x-bind:uk-tooltip="full_width ? 'Shrink (out of focus mode)' : 'Expand (focus mode)'">
+                                    <i class="uk-icon"
+                                        x-bind:uk-icon="full_width ? 'icon: shrink' : 'icon: expand'"
+                                    ></i>
                                 </button>
                             </div>
 
@@ -140,13 +191,13 @@
                                 <div class="uk-width-2-3@m uk-first-column uk-padding-small uk-padding-remove-bottom">
                                     <label class="cursor-pointer" title="Note visibility private"
                                         uk-tooltip="Note visibility private">
-                                        <input class="uk-radio" type="radio" value="private" name="note_visibility"
+                                        <input class="uk-radio cursor-pointer" type="radio" value="private" name="note_visibility"
                                             checked>
                                         <i uk-icon="icon: lock; ratio: 1"></i> Private (current)
                                     </label>
                                     <label class="cursor-pointer" title="Note visibility public"
                                         uk-tooltip="Note visibility public">
-                                        <input class="uk-radio" type="radio" value="public" name="note_visibility">
+                                        <input class="uk-radio cursor-pointer" type="radio" value="public" name="note_visibility">
                                         <i uk-icon="icon: lock; ratio: 1"></i> Public
                                     </label>
                                 </div>
@@ -173,18 +224,20 @@
                                     <div class="uk-flex uk-flex-between">
                                         <button
                                             class="mod-mobile uk-button uk-button-small uk-button-danger uk-width-1-6"
-                                            title="Delete" uk-tooltip="Delete">
+                                            title="Delete" uk-tooltip="Delete"
+                                            @click="deleteNote">
                                             <i uk-icon="icon: trash; ratio: 1.5"></i>
                                         </button>
 
                                         <button class="mod-mobile uk-button uk-button-secondary uk-width-1-6"
-                                            title="Restore back state" uk-tooltip="Restore back state">
+                                            title="Restore back state" uk-tooltip="Restore back state (beta) [//TODO]">
                                             <i uk-icon="icon: history; ratio: 1.5"></i>
                                         </button>
 
                                         <button
                                             class="mod-mobile uk-button uk-button-primary uk-button-small uk-width-1-6"
-                                            title="Save note" uk-tooltip="Save note">
+                                            title="Save note" uk-tooltip="Save note"
+                                            @click.prevent="saveNote()">
                                             <i uk-icon="icon: check; ratio: 1.5"></i>
                                         </button>
                                         <div x-data>
@@ -196,6 +249,44 @@
                                 </div>
                             </div>
 
+                            <h3 @click.away="shareNote">Share</h3>
+                            <div class="uk-active uk-margin-top uk-padding-top"
+                                x-show="show_share_links"
+                                x-transition:enter.duration.500ms
+                                x-transition:leave.duration.1000ms>
+                                <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="twitter"></a>
+                                <a href="" class="uk-icon-button  uk-margin-small-right" uk-icon="facebook"></a>
+                                <a href="" class="uk-icon-button" uk-icon="youtube"></a>
+                            </div>
+
+                            <div class="uk-active uk-margin-top uk-padding-top">
+                                <div class="uk-width-1-1 uk-margin-top uk-padding-top uk-position-bottom">
+                                    <div class="uk-flex uk-flex-center uk-width-1-1 uk-margin-top">
+                                        <a href="" class="uk-icon-button uk-margin-small-right" uk-icon="twitter"></a>
+                                        <a href="" class="uk-icon-button  uk-margin-small-right" uk-icon="facebook"></a>
+                                        <a href="" class="uk-icon-button" uk-icon="youtube"></a>
+                                    </div>
+
+                                    <div class="uk-flex uk-flex-between uk-width-1-1 uk-margin-top">
+                                        <span>
+                                            <a href="#terms-and-conditions" uk-toggle>Terms and conditions</a>
+                                        </span>
+
+                                        <span>
+                                            <a href="#used-techs" uk-toggle>View all used techs</a>
+                                        </span>
+
+                                        <span>
+                                            Powered by <a href="https://linkedin.com/in/tiago-fran%C3%A7a/">Tiago França</a>
+                                        </span>
+
+                                        <span>
+                                            <a href="#link">Other link</a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </fieldset>
                 </div>
             </div>
@@ -249,8 +340,99 @@
         </div>
     </div>
 
-    <!-- All JavaScript -->
-    <script src="assets/js/all.js"></script>
+    <!-- Delete modal -->
+    <div id="delete-modal-notice" uk-modal>
+        <div class="uk-modal-dialog">
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Do you realy delete this note?</h2>
+                <h3 class="uk-modal-title">This cant't back</h3>
+            </div>
+            <div class="uk-modal-body">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+            <div class="uk-modal-footer"></div>
+        </div>
+    </div>
+
+    <!-- Terms and conditions modal -->
+    <div id="terms-and-conditions" uk-modal>
+        <div class="uk-modal-dialog">
+
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Headline</h2>
+            </div>
+
+            <div class="uk-modal-body" uk-overflow-auto>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+            </div>
+
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                <button class="uk-button uk-button-primary" type="button">Save</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Wsed techs modal -->
+    <div id="used-techs" uk-modal>
+        <div class="uk-modal-dialog">
+
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Headline</h2>
+            </div>
+
+            <div class="uk-modal-body" uk-overflow-auto>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+            </div>
+
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button uk-button-default uk-modal-close" type="button">Close</button>
+            </div>
+
+        </div>
+    </div>
 
     <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
     <!-- <script>
@@ -260,25 +442,147 @@
     <!-- <script src="https://www.google-analytics.com/analytics.js" async></script> -->
 
     <script>
-        function note() {
+        function note()
+        {
             return {
-                selectedOption: "",
+                full_width: false,
+                show_share_links: false,
+                is_new: false,
+                success: {
+                    "title" : ""
+                },
                 errors: {
-                    "title" : "Invalid title"
+                    "title" : ""
                 },
                 note_data: {
-                    "title": "My note title",
-                    "slug": "my-slug",
-                    "content": "My note content",
+                    public: false,
+                    title: "My note title",
+                    slug: "my-slug",
+                    content: "My note content",
                 },
+                shareNote()
+                {
+                    this.show_share_links = !this.show_share_links;
+                },
+
+                //-- TITLE --//
+                saveNote()
+                {
+                    var has_pendent_changes = this.edit_title || this.edit_slug;
+                    if(has_pendent_changes)
+                    {
+                        alert("To save note, save or cancel your pendent changes.");
+                        return;
+                    }
+                    alert("Note saved successfuly.");
+                },
+                //-- END TITLE --//
+
+                //-- TITLE --//
+                edit_title: false,
+                editTitle()
+                {
+                    this.edit_title = true;
+                },
+                cancelEditTitle()
+                {
+                    this.edit_title = false;
+                },
+                updateTitle()
+                {
+                    if(this.note_data.title.length > 0)
+                    {
+                        this.edit_title = false;
+                        this.note_data.title = this.note_data.title.trim();
+                        success("Title updated successfuly");
+                    }
+                    else
+                    {
+                        error("Fail to update title");
+                    }
+
+                    window.dispatchEvent(new CustomEvent(
+                        "title-flash-message", {
+                            detail: {
+                                type: 'success',
+                                message: 'Successfuly'
+                            }
+                        }
+                    ));
+
+                },
+                //-- END TITLE --//
+
+                //-- SLUG --//
+                edit_slug: false,
+                editSlug()
+                {
+                    this.edit_slug = true;
+                },
+                cancelEditSlug()
+                {
+                    this.edit_slug = false;
+                },
+                updateSlug()
+                {
+                    var to_slug = this.note_data.slug ? this.note_data.slug : this.note_data.title;
+                    to_slug = to_slug.trim().toLowerCase().replace(/ /g, '-');
+
+                    if(this.note_data.slug.length > 0)
+                    {
+                        this.edit_slug = false;
+                        this.note_data.slug = to_slug;
+                        success("Slug updated successfuly");
+                    }
+                    else
+                    {
+                        error("Fail to update slug");
+                    }
+                },
+                //-- END SLUG --//
+
+                //-- DELETE --//
+                delete_alert_feedback: false,
+                deleteNote()
+                {
+                    this.delete_alert_feedback = true;
+                    setTimeout( () => { this.delete_alert_feedback = false}, 2000);
+                    console.log('Note deleted')
+                },
+                //-- END DELETE --//
             };
         }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('cancel_title_edit', () => {
+            console.log('cancel_title_edit was dispatched log');
+        });
+
+        document.addEventListener('update_title_event', () => {
+            console.log('update_title_event was dispatched log');
+        });
+    });
+
     </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
     <!-- UIkit JS -->
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.8.1/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.8.1/dist/js/uikit-icons.min.js"></script>
+    <script src="assets/notify-master/assets/notify.min.js"></script>
+
+    <!-- All JavaScript -->
+    <script src="assets/js/all.js"></script>
+
+    <!-- Editor config file -->
+    <script src="assets/js/editor-configs.js"></script>
+
+    <script>
+        //TODO remover em produção
+        //Live reload onn changes
+        (function(){document.body.appendChild(document.createElement('script')).src='http://livejs.com/live.js#css,js,html';})();
+    </script>
 
 
 </body>
